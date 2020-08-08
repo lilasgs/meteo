@@ -1,11 +1,13 @@
 import 'dart:async';
-
+import '../models/globals.dart' as globals;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:location/location.dart';
+import 'package:meteo/settings/api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -63,6 +65,7 @@ class _HomePageState extends State<HomePage> {
     loader = false;
     await _getLocation();
     getInfosFromAPIweather(_location);
+    setLocationMembre(_location);
   }
 
   @override
@@ -71,267 +74,278 @@ class _HomePageState extends State<HomePage> {
     double height = MediaQuery.of(context).size.height - 20;
 
     return Scaffold(
-        body: LiquidPullToRefresh(
-      key: _refreshIndicatorKey,
-      onRefresh: _handleRefresh,
-      showChildOpacityTransition: false,
-      child: loader
-          ? ListView(
-              children: <Widget>[
-                Container(
-                  height: height / 4,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Icon(FontAwesomeIcons.mapMarkerAlt),
-                          SizedBox(width: 20),
-                          Text(
-                            "${data['timezone']}",
-                            style: TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        getDateFrenchFormat(today),
-                        style: TextStyle(
-                            fontSize: 25, fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                Divider(),
-                Container(
-                  height: height / 4,
-                  child: Center(
-                    child: Text(
-                      "${data['current']['temp']} °",
-                      style: TextStyle(
-                          fontSize: 80,
-                          fontWeight: FontWeight.w200,
-                          color: Colors.black54),
+      body: LiquidPullToRefresh(
+        key: _refreshIndicatorKey,
+        onRefresh: _handleRefresh,
+        showChildOpacityTransition: false,
+        child: loader
+            ? ListView(
+                children: <Widget>[
+                  Container(
+                    height: height / 4,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(FontAwesomeIcons.mapMarkerAlt),
+                            SizedBox(width: 20),
+                            Text(
+                              "${data['timezone']}",
+                              style: TextStyle(
+                                  fontSize: 30, fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          getDateFrenchFormat(today),
+                          style: TextStyle(
+                              fontSize: 25, fontWeight: FontWeight.w300),
+                        )
+                      ],
                     ),
                   ),
-                ),
-                Divider(),
-                Container(
-                  height: height / 4,
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                          child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text('Lundi'),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                '26 °',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.ac_unit,
-                                    size: 17,
-                                  ),
-                                  Text(
-                                    '150',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w300),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                      Expanded(
-                          child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text('Lundi'),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                '26 °',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.ac_unit,
-                                    size: 17,
-                                  ),
-                                  Text(
-                                    '150',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w300),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                      Expanded(
-                          child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text('Lundi'),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                '26 °',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.ac_unit,
-                                    size: 17,
-                                  ),
-                                  Text(
-                                    '150',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w300),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                      Expanded(
-                          child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text('Lundi'),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                '26 °',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.ac_unit,
-                                    size: 17,
-                                  ),
-                                  Text(
-                                    '150',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w300),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                      Expanded(
-                          child: Container(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text('Lundi'),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Text(
-                                '26 °',
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.only(top: 10),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.ac_unit,
-                                    size: 17,
-                                  ),
-                                  Text(
-                                    '150',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w300),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                    ],
-                  ),
-                ),
-                Divider(),
-                Container(
-                    height: 80,
+                  Divider(),
+                  Container(
+                    height: height / 4,
                     child: Center(
-                        child: CircleAvatar(
-                      maxRadius: 30,
-                      child: IconButton(
-                        onPressed: () {
-                          print("rafraichir");
-                        },
-                        icon: Icon(
-                          Icons.refresh,
-                          size: 30,
-                        ),
+                      child: Text(
+                        "${data['current']['temp']} °",
+                        style: TextStyle(
+                            fontSize: 80,
+                            fontWeight: FontWeight.w200,
+                            color: Colors.black54),
                       ),
-                    )))
-              ],
-            )
-          : Center(
-              child: CircularProgressIndicator(),
-            ),
-    ));
+                    ),
+                  ),
+                  Divider(),
+                  Container(
+                    height: height / 4,
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                            child: Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text('Lundi'),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  '26 °',
+                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.ac_unit,
+                                      size: 17,
+                                    ),
+                                    Text(
+                                      '150',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                        Expanded(
+                            child: Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text('Lundi'),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  '26 °',
+                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.ac_unit,
+                                      size: 17,
+                                    ),
+                                    Text(
+                                      '150',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                        Expanded(
+                            child: Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text('Lundi'),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  '26 °',
+                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.ac_unit,
+                                      size: 17,
+                                    ),
+                                    Text(
+                                      '150',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                        Expanded(
+                            child: Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text('Lundi'),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  '26 °',
+                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.ac_unit,
+                                      size: 17,
+                                    ),
+                                    Text(
+                                      '150',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                        Expanded(
+                            child: Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text('Lundi'),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Text(
+                                  '26 °',
+                                  style: TextStyle(fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Icon(
+                                      Icons.ac_unit,
+                                      size: 17,
+                                    ),
+                                    Text(
+                                      '150',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                  Container(
+                      height: 80,
+                      child: Center(
+                          child: CircleAvatar(
+                        maxRadius: 30,
+                        child: IconButton(
+                          onPressed: () {
+                            print("rafraichir");
+                          },
+                          icon: Icon(
+                            Icons.refresh,
+                            size: 30,
+                          ),
+                        ),
+                      )))
+                ],
+              )
+            : Center(
+                child: CircularProgressIndicator(),
+              ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.clear();
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/login', (Route<dynamic> route) => false);
+        },
+        child: Icon(FontAwesomeIcons.userAltSlash),
+      ),
+    );
   }
 
   // Fonction execeuter apres le pull to refresh
@@ -397,5 +411,20 @@ class _HomePageState extends State<HomePage> {
     }
 
     return "$day-$month-${date.year} $heure:$minute";
+  }
+
+  setLocationMembre(LocationData location) async {
+    FormData formData = new FormData.fromMap({
+      "longitude": location.longitude,
+      "latitude": location.latitude,
+      'id': globals.user['id']
+    });
+    String url = "${API.url}/membre/location";
+
+    Response response;
+    try {
+      response = await Dio().post(url, data: formData);
+      if (response.statusCode == 200) {}
+    } catch (e) {}
   }
 }
